@@ -393,8 +393,130 @@ Class CustomView : View {
   }
 }
 ```
+#### 다음에 계속..
 
+#### let
+자바에서 이런식으로 코딩을 해야했다면,
+```
+Java version
+private void setUser(@Nullable User user) {
+  if(user != null) {
+    String name = user.getName();
+    // Todo...
+  }
+}
+```
+코틀린에서는 아주 직관적이고 가독성 좋은 코드가 되었다.
+```
+kotlin version
+private fun setUser(user : User?) {
+  user?.let {
+    user ->
+      val name = user.name
+  }
+}
+```
+인자를 받지 않으면, 묵시적으로 it 이 생긴다.
+```
+private fun setUser(user : User?) {
+  user?.let {
+      val name = it.name
+  }
+}
+```
 
+```
+Java version
+private void setUser(@Nullable User user) {
+  if(user == null) {
+    //Todo handler nullptr
+  } else {
+    String name = user.getName();
+    if(name == null) {
+      //Todo handler nullptr
+    } else {
+      //Todo ...
+    }
+
+  }
+}
+```
+좀더 개선하면
+```
+private void setUser(@Nullable User user) {
+  if(user != null && user.getName() != null) {
+    String name = user.getName();
+    //Todo...
+  } else {
+    //Todo handler nullptr
+  }
+}
+```
+까지 바꿀 수 있지만, 코틀린을 사용하면 아래처럼 활용가능하다. (let, run 구조)
+```
+private fun setUser(user : User?) {
+  user?.name?.let {
+    //Todo ...
+  } ? : run {
+    //Todo handler nullptr
+  }
+}
+
+```
+
+#### Apply
+```
+Java version
+User user = new User("nanamare", "서울시 사당동", "29살");
+```
+or
+```
+User user = new User();
+user.setName("nanamare");
+user.setAddress("서울시 사당동");
+user.old("29살");
+```
+코틀린으로 표현하면, 간단히 표현할 수 있다. (객체를 만들고 바로 init 해줘야 하는 경우)
+```
+val user = User().apply { // 스코프 안에는 자기자신을 자기킨다
+  name = "nanamare"
+  address = "서울시 사당동"
+  old = "29살"
+}
+```
+
+####Apply - Intent 편
+```
+private Intent getNewActivity() {
+  Intent intent = new Intent(this, NewActivity.class);
+  intent.putExtras(EXTRA_KEY_A, a);
+  intent.putExtras(EXTRA_KEY_B, b);
+  intent.putExtras(EXTRA_KEY_C, c);
+  return intent;
+}
+```
+이런식으로 직관적으로 표현가능하다.
+```
+private fun getNewActivity() {
+  Intent(this, NewActivity::class.java).apply {
+    putExtras(EXTRA_KEY_A, a)
+    putExtras(EXTRA_KEY_B, b)
+    putExtras(EXTRA_KEY_C, c)
+  }
+}
+```
+
+#### Apply, Also, Run, Let, With
+
+#### Extension function
+원래 정의되어있던 함수인것처럼 사용
+```
+fun Context.showToast(text : CharSequence, duration : Int = Toast.LENGTH_SHORT) {
+  Toast.makeText(this, text, duration).show()
+}
+```
+
+코틀린 인 액션, 커니의 코틀린
 
 
 ```
