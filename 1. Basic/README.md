@@ -371,7 +371,7 @@ val person = Person("Hyunsung")
 - 오브젝트 선언
 
 #### 상속
-코틀린의 모든 클래스는 공통의 상위 클래스인 **Any**를 가진다. Any는 상위타입을 지정하지 않은 클래스의 기본 상위 타입이다.</br>
+코틀린의 모든 클래스는 공통의 상위 클래스인 **Any** 를 가진다. Any는 상위타입을 지정하지 않은 클래스의 기본 상위 타입이다.</br>
 Any는 java.lang.Object가 아니다. 특히 equals(), hashCode(), toString() 외에 다른 멤버를 갖지 않는다.</br>
 상위타입을 직접 선언하려면 클래스 헤더에 콜론 뒤에 타입을 위치 시키면 된다.</br>
 기본적으로 코틀린에서 모든 클래스는 final 이다. 그래서 클래스 앞에 붙는 open은 다른 클래스가 이 클래스를 상속할 수 있도록 한다.
@@ -393,7 +393,139 @@ Class CustomView : View {
   }
 }
 ```
-#### 다음에 계속..
+클래스의 open 어노테이션은 자바의 final과 정반대이다. open은 다른 클래스가 이 클래스를 상속할 수 있도록 한다.</br>
+**기본적으로 코틀린의 모든 클래스는 final이다** </br>
+
+##### 멤버 오버라이딩
+코틀린에서는 뭐든 명시적으로 만드는 것을 고수한다. 자바와 달리 코틀린은 오버라이딩 가능한 멤버와 오버라이드를 위해서는 명시적으로 어노테이션을 붙여줘야 한다!
+
+```
+open class Base {
+  open fun f() {}
+  fun v() {}
+}
+
+class Derived() : Base() {
+  override fun f() {}
+}
+```
+Derived 클래스의 f()는 override 어노테이션이 명시적으로 붙어야한다. 붙이지 않으면 컴파일 에러가 발생한다. Base 클래스의 v() 와 같이 함수에 open 을 붙이지 않으면
+override 여부에 상관없이 하위클래스에서 동일 시그니처를 갖는 메서드를 선언할 수 없다. 또한 final 클래스에서는 open 어노테이션이 금지된다.
+따라서 오버라이딩을 막고 싶다면 final 을 사용하면 된다.
+
+##### 오버라이딩 규칙
+자식 클래스의 여러 부모 클래스에서 같은 시그니처를 가진 함수를 상속하면, 반드시 자식 클래스에서 함수를 오버라이딩하고, 구현해애한다. (보통 상속받은 것들 중 하나를 사용하는편이다)
+사용할 상위 타입의 구현을 지정하려면 화살괄호에 상위 타입 이름을 지정한 super 키워드를 사용한다
+```
+open class A {
+    open  fun f () {
+        println("A - f")
+    }
+
+    open fun a () {
+        println("A - a")
+    }
+}
+
+interface B {
+    fun f() {
+        println("B - f")
+    }
+
+    fun a() {
+        println("B - a")
+    }
+}
+
+class C : A(), B {
+
+    override fun f() {
+        super<A>.f()
+        super<B>.f()
+    }
+
+    override fun a() {
+        super<A>.a()
+    }
+
+}
+
+fun main() {
+    var a = C()
+    a.f()
+}
+```
+
+##### 추상클래스
+클래스와 멤버를 abstract 로 선언할 수 있다. 추상 멤버는 구현을 갖지 않는다. 또한 open 을 붙일 필요가 없다.
+또한 open 되어 있는 메소드 추상 메소드로 오버라이딩 할 수 있다
+
+```
+open class BA {
+    open fun f() {}
+}
+
+abstract class D : BA() {
+
+    abstract override fun f()
+
+}
+
+class F : D() {
+    override fun f() {
+    }
+
+}
+```
+#### Companion Objects
+코틀린의 클래스는 정적 메서드를 갖지 않는다. 많은 경우 그대신 패키지 수준의 함수를 사용하는 것을 권장하고 있다.
+
+만약 클래스 인스턴트 없이 클래스의 내부에 접근해야하는 함수를 작성해야 한다면(ex 팩토리 메서드 등 BitmapFactory.create(...)), 클래스 안에 선언한 오브젝트의 멤버로 함수를 작성할 수 있다
+
+```
+class Bars {
+
+    fun beer() {
+        println("nice beer")
+    }
+}
+
+class Foo {
+
+    companion object {
+
+        @JvmField
+        val BARs = Bars()
+
+        @JvmStatic
+        val TAG = Foo::class.java.simpleName
+
+
+    }
+}
+
+fun main() {
+    Foo.BARs.beer()
+    println(Foo.TAG)
+
+
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #### let
 자바에서 이런식으로 코딩을 해야했다면,
